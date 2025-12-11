@@ -8,6 +8,9 @@ import { parseCitiesExcel, parseSalariesExcel } from '@/lib/excelParser'
 import { clearTable, insertCities, insertSalaries, getAllCities, getAllSalaries, insertCalculationResults } from '@/lib/database'
 import { calculateSocialInsurance } from '@/lib/calculations'
 
+// 动态导出以防止预渲染
+export const dynamic = 'force-dynamic'
+
 export default function UploadPage() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)

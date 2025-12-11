@@ -8,6 +8,9 @@ import { FilterPanel } from '@/components/FilterPanel'
 import { DataTable } from '@/components/DataTable'
 import { StatisticsCards } from '@/components/StatisticsCards'
 
+// 动态导出以防止预渲染
+export const dynamic = 'force-dynamic'
+
 export default function ResultsPage() {
   const [results, setResults] = useState<Result[]>([])
   const [filteredResults, setFilteredResults] = useState<Result[]>([])

@@ -1,8 +1,9 @@
-import { supabase, City, Salary, Result } from './supabase'
+import { City, Salary, Result, getSupabaseClient } from './supabase'
 import { CalculationResult } from './calculations'
 
 // 清空表数据
 export async function clearTable(tableName: 'cities' | 'salaries' | 'results') {
+  const supabase = getSupabaseClient()
   const { error } = await supabase
     .from(tableName)
     .delete()
@@ -15,6 +16,7 @@ export async function clearTable(tableName: 'cities' | 'salaries' | 'results') {
 
 // 清空所有数据
 export async function clearAllData() {
+  const supabase = getSupabaseClient()
   const tables = ['results', 'salaries', 'cities']
 
   for (const table of tables) {
@@ -31,6 +33,7 @@ export async function clearAllData() {
 
 // 批量插入城市数据
 export async function insertCities(cities: Omit<City, 'id'>[]) {
+  const supabase = getSupabaseClient()
   const { error } = await supabase
     .from('cities')
     .insert(cities)
@@ -42,6 +45,7 @@ export async function insertCities(cities: Omit<City, 'id'>[]) {
 
 // 批量插入工资数据
 export async function insertSalaries(salaries: Omit<Salary, 'id'>[]) {
+  const supabase = getSupabaseClient()
   const { error } = await supabase
     .from('salaries')
     .insert(salaries)
@@ -53,6 +57,7 @@ export async function insertSalaries(salaries: Omit<Salary, 'id'>[]) {
 
 // 获取所有城市数据
 export async function getAllCities(): Promise<City[]> {
+  const supabase = getSupabaseClient()
   const { data, error } = await supabase
     .from('cities')
     .select('*')
@@ -67,6 +72,7 @@ export async function getAllCities(): Promise<City[]> {
 
 // 获取所有工资数据
 export async function getAllSalaries(): Promise<Salary[]> {
+  const supabase = getSupabaseClient()
   const { data, error } = await supabase
     .from('salaries')
     .select('*')
@@ -81,6 +87,7 @@ export async function getAllSalaries(): Promise<Salary[]> {
 
 // 插入计算结果
 export async function insertCalculationResults(results: CalculationResult[]) {
+  const supabase = getSupabaseClient()
   const insertData = results.map(result => ({
     ...result,
     created_at: new Date().toISOString()
@@ -97,6 +104,7 @@ export async function insertCalculationResults(results: CalculationResult[]) {
 
 // 获取所有计算结果
 export async function getAllResults(): Promise<Result[]> {
+  const supabase = getSupabaseClient()
   const { data, error } = await supabase
     .from('results')
     .select('*')
@@ -115,6 +123,7 @@ export async function getResultsWithFilters(filters: {
   year?: string
   employeeName?: string
 }): Promise<Result[]> {
+  const supabase = getSupabaseClient()
   let query = supabase
     .from('results')
     .select('*')
