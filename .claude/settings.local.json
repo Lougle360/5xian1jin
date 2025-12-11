@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(claude:*)"
+      "Bash(claude:*)",
+      "Bash(npm install:*)",
+      "Bash(cp:*)",
+      "Bash(npm run dev)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

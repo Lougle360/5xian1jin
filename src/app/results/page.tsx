@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Result } from '@/lib/supabase'
 import { getAllResults, getResultsWithFilters, getResultsStatistics } from '@/lib/database'
 import { FilterPanel } from '@/components/FilterPanel'
@@ -22,7 +23,6 @@ export default function ResultsPage() {
     avgCompanyFee: 0
   })
 
-  // 加载数据
   const loadData = async () => {
     setLoading(true)
     try {
@@ -36,12 +36,10 @@ export default function ResultsPage() {
     }
   }
 
-  // 初始加载
   useEffect(() => {
     loadData()
   }, [])
 
-  // 应用筛选
   useEffect(() => {
     const applyFilters = async () => {
       setLoading(true)
@@ -49,7 +47,6 @@ export default function ResultsPage() {
         const filtered = await getResultsWithFilters(filters)
         setFilteredResults(filtered)
 
-        // 更新统计信息
         const stats = await getResultsStatistics(filters)
         setStatistics(stats)
       } catch (error) {
@@ -63,7 +60,6 @@ export default function ResultsPage() {
       applyFilters()
     } else {
       setFilteredResults(results)
-      // 计算全量统计
       const totalEmployees = new Set(results.map(r => r.employee_name)).size
       const totalCompanyFee = results.reduce((sum, r) => sum + r.company_fee, 0)
       setStatistics({
@@ -77,26 +73,48 @@ export default function ResultsPage() {
   }, [filters, results])
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">计算结果查询</h1>
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                <span>返回首页</span>
+              </Link>
+              <div className="h-6 w-px bg-gray-300"></div>
+              <h1 className="text-xl font-semibold text-gray-900">计算结果查询</h1>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/upload"
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+              >
+                数据管理
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-        {/* 统计卡片 */}
-        <StatisticsCards statistics={statistics} />
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <StatisticsCards statistics={statistics} />
 
-        {/* 筛选面板 */}
-        <FilterPanel
-          filters={filters}
-          onFiltersChange={setFilters}
-          results={results}
-          disabled={loading}
-        />
+          <FilterPanel
+            filters={filters}
+            onFiltersChange={setFilters}
+            results={results}
+            disabled={loading}
+          />
 
-        {/* 数据表格 */}
-        <DataTable
-          data={filteredResults}
-          loading={loading}
-        />
+          <DataTable
+            data={filteredResults}
+            loading={loading}
+          />
+        </div>
       </div>
     </div>
   )
