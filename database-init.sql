@@ -1,6 +1,50 @@
 -- Supabase SQL 命令
 -- 请在 Supabase 项目的 SQL 编辑器中执行以下命令
 
+-- 创建 exec_sql 函数（用于通过 RPC 执行 SQL 语句）
+-- 注意：此函数需要 SECURITY DEFINER 权限来执行 DDL 语句
+-- 此函数支持多语句 SQL，通过分号分隔
+CREATE OR REPLACE FUNCTION exec_sql(sql TEXT)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  statements TEXT[];
+  stmt TEXT;
+  cleaned_stmt TEXT;
+BEGIN
+  -- 将 SQL 按分号分割成多个语句
+  statements := string_to_array(sql, ';');
+  
+  -- 执行每个语句
+  FOREACH stmt IN ARRAY statements
+  LOOP
+    -- 去除前后空白
+    cleaned_stmt := trim(stmt);
+    
+    -- 跳过空语句、纯注释和只包含空白/换行的语句
+    IF cleaned_stmt != '' 
+       AND NOT (cleaned_stmt ~ '^\s*--') 
+       AND NOT (cleaned_stmt ~ '^\s*$') THEN
+      BEGIN
+        EXECUTE cleaned_stmt;
+      EXCEPTION WHEN OTHERS THEN
+        -- 对于某些错误（如对象已存在），只记录警告
+        -- 对于其他错误，抛出异常
+        IF SQLSTATE = '42P07' OR SQLSTATE = '42710' THEN
+          -- 表/对象已存在，只记录警告
+          RAISE WARNING '对象已存在，跳过: %', SQLERRM;
+        ELSE
+          -- 其他错误，重新抛出
+          RAISE;
+        END IF;
+      END;
+    END IF;
+  END LOOP;
+END;
+$$;
+
 -- 创建城市标准表
 CREATE TABLE IF NOT EXISTS cities (
   id SERIAL PRIMARY KEY,
